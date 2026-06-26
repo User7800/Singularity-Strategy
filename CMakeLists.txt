@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(SingularityStrategy LANGUAGES CXX)
+project(SingularityStrategy LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,7 +26,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(flecs)
 
 # Source files
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES "src/*.c")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
