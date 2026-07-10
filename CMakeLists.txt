@@ -26,9 +26,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(flecs)
 
 # Source files
-file(GLOB_RECURSE SOURCES "src/*.c")
+#file(GLOB_RECURSE SOURCES "src/*.c")
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+#add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} src/main.c)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib flecs::flecs_static)
 
