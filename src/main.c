@@ -4,6 +4,7 @@
 #include "config.h"
 #include "rlwm.h"
 
+#define PLAYER_SIZE 40
 
 // _____________________________________________________________________________
 //
@@ -87,6 +88,20 @@ int main()
 
     // _________________________________________________________________________
     //
+    //  Set up player
+    // _________________________________________________________________________
+    //
+    Rectangle player1 = { 200, 200, PLAYER_SIZE, PLAYER_SIZE };
+    Camera2D camera1 = { 0 };
+    camera1.target = (Vector2){ player1.x, player1.y };
+    camera1.offset = (Vector2){ 450.0f , 200.0f };
+    camera1.rotation = 0.0f;
+    camera1.zoom = 1.0f;
+
+    RenderTexture screenCamera1 = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    // _________________________________________________________________________
+    //
     //  Main Loop
     // _________________________________________________________________________
     //
@@ -130,6 +145,13 @@ int main()
 
         SetMouseCursor(cursor);
         cursor = MOUSE_CURSOR_DEFAULT;
+
+        if (IsKeyDown(KEY_UP)) player1.y -= 3.0f;
+        else if (IsKeyDown(KEY_DOWN)) player1.y += 3.0f;
+        if (IsKeyDown(KEY_RIGHT)) player1.x += 3.0f;
+        else if (IsKeyDown(KEY_LEFT)) player1.x -= 3.0f;
+
+        camera1.target = (Vector2){ player1.x, player1.y };
 
         // _____________________________________________________________________
         //
@@ -233,22 +255,47 @@ int main()
 
         BeginTextureMode(rt);
         ClearBackground(BLACK);
+        BeginMode2D(camera1);
+
+
+        // Draw full scene with first camera
+        for (int i = 0; i < SCREEN_WIDTH/PLAYER_SIZE + 1; i++)
+        {
+            DrawLineV((Vector2){(float)PLAYER_SIZE*i, 0}, (Vector2){ (float)PLAYER_SIZE*i, (float)SCREEN_HEIGHT}, LIGHTGRAY);
+        }
+
+        for (int i = 0; i < SCREEN_HEIGHT/PLAYER_SIZE + 1; i++)
+        {
+            DrawLineV((Vector2){0, (float)PLAYER_SIZE*i}, (Vector2){ (float)SCREEN_WIDTH, (float)PLAYER_SIZE*i}, LIGHTGRAY);
+        }
+
+        for (int i = 0; i < SCREEN_WIDTH/PLAYER_SIZE; i++)
+        {
+            for (int j = 0; j < SCREEN_HEIGHT/PLAYER_SIZE; j++)
+            {
+                DrawText(TextFormat("[%i,%i]", i, j), 10 + PLAYER_SIZE*i, 15 + PLAYER_SIZE*j, 10, LIGHTGRAY);
+            }
+        }
+
+        DrawRectangleRec(player1, RED);
+        EndMode2D();
+
 
         // draw tiled/scaled background
-        if (TILED_BACKGROUND)
-        {
-            DrawTextureTiled(
-                bg, (Rectangle){0, 0, bg.width, bg.height},
-                (Rectangle){0, 0, RENDER_WIDTH, RENDER_HEIGHT},
-                (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
-        }
-        else
-        {
-            DrawTexturePro(
-                bg, (Rectangle){0, 0, bg.width, bg.height},
-                (Rectangle){0, 0, RENDER_WIDTH, RENDER_HEIGHT},
-                (Vector2){0, 0}, 0.0f, WHITE);
-        }
+        //if (TILED_BACKGROUND)
+        //{
+        //    DrawTextureTiled(
+        //        bg, (Rectangle){0, 0, bg.width, bg.height},
+        //        (Rectangle){0, 0, RENDER_WIDTH, RENDER_HEIGHT},
+        //        (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
+        //}
+        //else
+        //{
+        //    DrawTexturePro(
+        //        bg, (Rectangle){0, 0, bg.width, bg.height},
+        //        (Rectangle){0, 0, RENDER_WIDTH, RENDER_HEIGHT},
+        //        (Vector2){0, 0}, 0.0f, WHITE);
+        //}
 
         // _____________________________________________________________________
         //

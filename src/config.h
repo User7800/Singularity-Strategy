@@ -1,5 +1,5 @@
-#define SCREEN_WIDTH		1024
-#define SCREEN_HEIGHT		768
+#define SCREEN_WIDTH		1920
+#define SCREEN_HEIGHT		1080
 #define FULLSCREEN			0
 #define WINDOW_LIMIT		8
 #define SCALE				2.0f
