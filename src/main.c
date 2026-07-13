@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "config.h"
 #include "rlwm.h"
+#include "math.h"
 
 #define PLAYER_SIZE 40
 
@@ -91,7 +92,7 @@ int main()
     //  Set up player
     // _________________________________________________________________________
     //
-    Rectangle player1 = { 200, 200, PLAYER_SIZE, PLAYER_SIZE };
+    Rectangle player1 = { 3*PLAYER_SIZE, 3*PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE };
     Camera2D camera1 = { 0 };
     camera1.target = (Vector2){ player1.x, player1.y };
     camera1.offset = (Vector2){ 450.0f , 200.0f };
@@ -259,21 +260,27 @@ int main()
 
 
         // Draw full scene with first camera
-        for (int i = 0; i < SCREEN_WIDTH/PLAYER_SIZE + 1; i++)
+        for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
         {
-            DrawLineV((Vector2){(float)PLAYER_SIZE*i, 0}, (Vector2){ (float)PLAYER_SIZE*i, (float)SCREEN_HEIGHT}, LIGHTGRAY);
+            if (i < 0) continue;
+            if (i > 2001) break;
+            DrawLineV((Vector2){(float)PLAYER_SIZE*i, (float)fmax(camera1.target.y - 200, 0)}, (Vector2){ (float)PLAYER_SIZE*i, (float)fmin(camera1.target.y + 350, 1001*PLAYER_SIZE)}, LIGHTGRAY);
         }
 
-        for (int i = 0; i < SCREEN_HEIGHT/PLAYER_SIZE + 1; i++)
+        for (int i = camera1.target.y/PLAYER_SIZE - 6; i < camera1.target.y/PLAYER_SIZE + 8; i++)
         {
-            DrawLineV((Vector2){0, (float)PLAYER_SIZE*i}, (Vector2){ (float)SCREEN_WIDTH, (float)PLAYER_SIZE*i}, LIGHTGRAY);
+            if (i < 0) continue;
+            if (i > 1001) break;
+            DrawLineV((Vector2){(float)fmax(camera1.target.x - 450, 0), (float)PLAYER_SIZE*i}, (Vector2){ (float)fmin(camera1.target.x + 550, 2001*PLAYER_SIZE), (float)PLAYER_SIZE*i}, LIGHTGRAY);
         }
 
-        for (int i = 0; i < SCREEN_WIDTH/PLAYER_SIZE; i++)
+        for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
         {
-            for (int j = 0; j < SCREEN_HEIGHT/PLAYER_SIZE; j++)
+            for (int j = camera1.target.y/PLAYER_SIZE - 6; j < camera1.target.y/PLAYER_SIZE + 8; j++)
             {
-                DrawText(TextFormat("[%i,%i]", i, j), 10 + PLAYER_SIZE*i, 15 + PLAYER_SIZE*j, 10, LIGHTGRAY);
+                if (i < 0 || j < 0) continue;
+                if (i > 2000 || j > 1000) continue;
+                DrawText(TextFormat("[%i,\n%i]", i, j), 10 + PLAYER_SIZE*i, 15 + PLAYER_SIZE*j, 1, LIGHTGRAY);
             }
         }
 
