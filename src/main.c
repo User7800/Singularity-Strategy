@@ -5,7 +5,7 @@
 #include "rlwm.h"
 #include "math.h"
 
-#define PLAYER_SIZE 40
+#define PLAYER_SIZE 12
 
 // _____________________________________________________________________________
 //
@@ -260,29 +260,29 @@ int main()
 
 
         // Draw full scene with first camera
-        for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
+        for (int i = camera1.target.x/PLAYER_SIZE - SCREEN_WIDTH/(4*PLAYER_SIZE); i < camera1.target.x/PLAYER_SIZE + SCREEN_WIDTH/(3*PLAYER_SIZE); i++)
         {
             if (i < 0) continue;
             if (i > 2001) break;
             DrawLineV((Vector2){(float)PLAYER_SIZE*i, (float)fmax(camera1.target.y - 200, 0)}, (Vector2){ (float)PLAYER_SIZE*i, (float)fmin(camera1.target.y + 350, 1001*PLAYER_SIZE)}, LIGHTGRAY);
         }
 
-        for (int i = camera1.target.y/PLAYER_SIZE - 6; i < camera1.target.y/PLAYER_SIZE + 8; i++)
+        for (int i = camera1.target.y/PLAYER_SIZE - SCREEN_HEIGHT/(2*PLAYER_SIZE); i < camera1.target.y/PLAYER_SIZE + SCREEN_HEIGHT/(2*PLAYER_SIZE); i++)
         {
             if (i < 0) continue;
             if (i > 1001) break;
             DrawLineV((Vector2){(float)fmax(camera1.target.x - 450, 0), (float)PLAYER_SIZE*i}, (Vector2){ (float)fmin(camera1.target.x + 550, 2001*PLAYER_SIZE), (float)PLAYER_SIZE*i}, LIGHTGRAY);
         }
 
-        for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
-        {
-            for (int j = camera1.target.y/PLAYER_SIZE - 6; j < camera1.target.y/PLAYER_SIZE + 8; j++)
-            {
-                if (i < 0 || j < 0) continue;
-                if (i > 2000 || j > 1000) continue;
-                DrawText(TextFormat("[%i,\n%i]", i, j), 10 + PLAYER_SIZE*i, 15 + PLAYER_SIZE*j, 1, LIGHTGRAY);
-            }
-        }
+        //for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
+        //{
+        //    for (int j = camera1.target.y/PLAYER_SIZE - 6; j < camera1.target.y/PLAYER_SIZE + 8; j++)
+        //    {
+        //        if (i < 0 || j < 0) continue;
+        //        if (i > 2000 || j > 1000) continue;
+        //        DrawText(TextFormat("[%i,\n%i]", i, j), 10 + PLAYER_SIZE*i, 15 + PLAYER_SIZE*j, 1, LIGHTGRAY);
+        //    }
+        //}
 
         DrawRectangleRec(player1, RED);
         EndMode2D();
