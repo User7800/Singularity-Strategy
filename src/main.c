@@ -1,11 +1,27 @@
 #include <time.h>
 #include <stdio.h>
+#include "flecs.h"
 #include "raylib.h"
 #include "config.h"
 #include "rlwm.h"
 #include "math.h"
 
 #define PLAYER_SIZE 40
+
+typedef struct {
+    float x, y;
+} Position, Velocity;
+
+void Move(ecs_iter_t *it) {
+    Position *p = ecs_field(it, Position, 0);
+    Velocity *v = ecs_field(it, Velocity, 1);
+
+    for (int i = 0; i < it->count; i++) {
+        p[i].x += v[i].x;
+        p[i].y += v[i].y;
+    }
+}
+
 
 // _____________________________________________________________________________
 //
@@ -19,6 +35,19 @@ int main()
     SetTargetFPS(60);
     SetWindowIcon(LoadImage(TextFormat("%s/logo.png", ASSETS_FOLDER)));
     SetMouseScale(1 / SCALE, 1 / SCALE);
+
+    ecs_world_t *ecs = ecs_init();
+    ECS_COMPONENT(ecs, Position);
+    ECS_COMPONENT(ecs, Velocity);
+
+    ECS_SYSTEM(ecs, Move, EcsOnUpdate, Position, Velocity);
+    ecs_set_rate(ecs, ecs_id(Move), 1, 0);
+
+    ecs_entity_t e = ecs_insert(ecs,
+        ecs_value(Position, {10, 20}),
+        ecs_value(Velocity, {0.5, 0})
+    );
+    const Position *p = ecs_get(ecs, e, Position);
 
     RenderTexture rt = LoadRenderTexture(RENDER_WIDTH, RENDER_HEIGHT);
 
@@ -87,19 +116,6 @@ int main()
 
     UnloadImage(iconImage);
 
-    // _________________________________________________________________________
-    //
-    //  Set up player
-    // _________________________________________________________________________
-    //
-    Rectangle player1 = { 3*PLAYER_SIZE, 3*PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE };
-    Camera2D camera1 = { 0 };
-    camera1.target = (Vector2){ player1.x, player1.y };
-    camera1.offset = (Vector2){ 450.0f , 200.0f };
-    camera1.rotation = 0.0f;
-    camera1.zoom = 1.0f;
-
-    RenderTexture screenCamera1 = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // _________________________________________________________________________
     //
@@ -128,6 +144,8 @@ int main()
         // _____________________________________________________________________
         //
 
+        ecs_progress(ecs, 0);
+
         if (IsKeyPressed(KEY_A))
         {
             createWindow((Window){
@@ -146,13 +164,6 @@ int main()
 
         SetMouseCursor(cursor);
         cursor = MOUSE_CURSOR_DEFAULT;
-
-        if (IsKeyDown(KEY_UP)) player1.y -= 3.0f;
-        else if (IsKeyDown(KEY_DOWN)) player1.y += 3.0f;
-        if (IsKeyDown(KEY_RIGHT)) player1.x += 3.0f;
-        else if (IsKeyDown(KEY_LEFT)) player1.x -= 3.0f;
-
-        camera1.target = (Vector2){ player1.x, player1.y };
 
         // _____________________________________________________________________
         //
@@ -256,36 +267,13 @@ int main()
 
         BeginTextureMode(rt);
         ClearBackground(BLACK);
-        BeginMode2D(camera1);
 
-
-        // Draw full scene with first camera
-        for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
-        {
-            if (i < 0) continue;
-            if (i > 2001) break;
-            DrawLineV((Vector2){(float)PLAYER_SIZE*i, (float)fmax(camera1.target.y - 200, 0)}, (Vector2){ (float)PLAYER_SIZE*i, (float)fmin(camera1.target.y + 350, 1001*PLAYER_SIZE)}, LIGHTGRAY);
-        }
-
-        for (int i = camera1.target.y/PLAYER_SIZE - 6; i < camera1.target.y/PLAYER_SIZE + 8; i++)
-        {
-            if (i < 0) continue;
-            if (i > 1001) break;
-            DrawLineV((Vector2){(float)fmax(camera1.target.x - 450, 0), (float)PLAYER_SIZE*i}, (Vector2){ (float)fmin(camera1.target.x + 550, 2001*PLAYER_SIZE), (float)PLAYER_SIZE*i}, LIGHTGRAY);
-        }
-
-        for (int i = camera1.target.x/PLAYER_SIZE - 12; i < camera1.target.x/PLAYER_SIZE + 13; i++)
-        {
-            for (int j = camera1.target.y/PLAYER_SIZE - 6; j < camera1.target.y/PLAYER_SIZE + 8; j++)
-            {
-                if (i < 0 || j < 0) continue;
-                if (i > 2000 || j > 1000) continue;
-                DrawText(TextFormat("[%i,\n%i]", i, j), 10 + PLAYER_SIZE*i, 15 + PLAYER_SIZE*j, 1, LIGHTGRAY);
-            }
-        }
-
-        DrawRectangleRec(player1, RED);
-        EndMode2D();
+        DrawText("Singularity Strategy", 20, 20, 30, RAYWHITE);
+        DrawText("Raylib + Flecs connected!", 20, 70, 20, GREEN);
+        DrawText("A moving AI Core entity demonstrates ECS", 20, 110, 20, YELLOW);
+        
+        DrawCircle((int)p->x, (int)p->y + 200, 25, RED);
+        DrawText("AI Core", (int)p->x - 35, (int)p->y + 150, 18, WHITE);
 
 
         // draw tiled/scaled background
