@@ -146,20 +146,28 @@ int main()
         SetMouseCursor(cursor);
         cursor = MOUSE_CURSOR_DEFAULT;
 
-        if (IsKeyDown(KEY_UP)) player1.y -= 3.0f;
-        else if (IsKeyDown(KEY_DOWN)) player1.y += 3.0f;
-        if (IsKeyDown(KEY_RIGHT)) player1.x += 3.0f;
-        else if (IsKeyDown(KEY_LEFT)) player1.x -= 3.0f;
+        if (IsKeyDown(KEY_UP)) player1.y -= 10.0f;
+        else if (IsKeyDown(KEY_DOWN)) player1.y += 10.0f;
+        if (IsKeyDown(KEY_RIGHT)) player1.x += 10.0f;
+        else if (IsKeyDown(KEY_LEFT)) player1.x -= 10.0f;
 
         if (IsKeyPressed(KEY_W)) player1.y -= 1.0f;
         else if (IsKeyPressed(KEY_S)) player1.y += 1.0f;
         if (IsKeyPressed(KEY_D)) player1.x += 1.0f;
         else if (IsKeyPressed(KEY_A)) player1.x -= 1.0f;
 
-        if (IsKeyPressed(KEY_EQUAL)) camera1.zoom += 0.5f;
-        if (IsKeyPressed(KEY_MINUS)) camera1.zoom -= 0.5f;
+        if (IsKeyPressed(KEY_EQUAL)) camera1.zoom *= 1.5f;
+        if (IsKeyPressed(KEY_MINUS)) camera1.zoom /= 1.5f;
+
+        if (player1.y < 0) player1.y = 0;
+        if (player1.y > 999) player1.y = 999;
+        if (player1.x < 0) player1.x += 2000;
+        if (player1.x > 1999) player1.x -= 2000;
 
         camera1.target = (Vector2){ player1.x, player1.y };
+        if (camera1.target.y < 200/camera1.zoom) camera1.target.y = 200/camera1.zoom;
+        //if (camera1.target.y > 678) camera1.target.y = 678;
+        if (camera1.target.y > 1000 - 322/camera1.zoom) camera1.target.y = 1000 - 322/camera1.zoom;
 
         // _____________________________________________________________________
         //
@@ -265,12 +273,27 @@ int main()
         ClearBackground(BLACK);
         BeginMode2D(camera1);
 
+        // center map
         DrawTexturePro(
             bg, (Rectangle){0, 0, bg.width, bg.height},
             (Rectangle){0, 0, bg.width, bg.height},
             (Vector2){0, 0}, 0.0f, WHITE);
 
+        // left side map
+        DrawTexturePro(
+            bg, (Rectangle){(bg.width/4)*3, 0, bg.width, bg.height},
+            (Rectangle){(bg.width/4)*3, 0, bg.width, bg.height},
+            (Vector2){bg.width, 0}, 0.0f, WHITE);
+
+        // right side map
+        DrawTexturePro(
+            bg, (Rectangle){0, 0, bg.width/3, bg.height},
+            (Rectangle){0, 0, bg.width/3, bg.height},
+            (Vector2){-bg.width, 0}, 0.0f, WHITE);
+
         DrawRectangleRec(player1, RED);
+        DrawText(TextFormat("[%.2f, %.2f]", player1.x, player1.y), player1.x, player1.y-12, 12, WHITE);
+
         EndMode2D();
 
 
