@@ -4,7 +4,7 @@
 #include "config.h"
 #include "rlwm.h"
 
-#define PLAYER_SIZE 12
+#define PLAYER_SIZE 1
 
 // _____________________________________________________________________________
 //
@@ -127,21 +127,21 @@ int main()
         // _____________________________________________________________________
         //
 
-        if (IsKeyPressed(KEY_A))
-        {
-            createWindow((Window){
-                .x = GetRandomValue(0, RENDER_WIDTH - 200),
-                .y = GetRandomValue(0, RENDER_HEIGHT - 100),
-                .width = 200,
-                .height = 100,
-                .minWidth = 125,
-                .minHeight = 100,
-                .resizable = true,
-                .function = messageBoxWindow,
-                .title = "New window",
-                .message = "hello world",
-                .icon = IC_ERROR});
-        }
+        //if (IsKeyPressed(KEY_A))
+        //{
+        //    createWindow((Window){
+        //        .x = GetRandomValue(0, RENDER_WIDTH - 200),
+        //        .y = GetRandomValue(0, RENDER_HEIGHT - 100),
+        //        .width = 200,
+        //        .height = 100,
+        //        .minWidth = 125,
+        //        .minHeight = 100,
+        //        .resizable = true,
+        //        .function = messageBoxWindow,
+        //        .title = "New window",
+        //        .message = "hello world",
+        //        .icon = IC_ERROR});
+        //}
 
         SetMouseCursor(cursor);
         cursor = MOUSE_CURSOR_DEFAULT;
@@ -150,6 +150,14 @@ int main()
         else if (IsKeyDown(KEY_DOWN)) player1.y += 3.0f;
         if (IsKeyDown(KEY_RIGHT)) player1.x += 3.0f;
         else if (IsKeyDown(KEY_LEFT)) player1.x -= 3.0f;
+
+        if (IsKeyPressed(KEY_W)) player1.y -= 1.0f;
+        else if (IsKeyPressed(KEY_S)) player1.y += 1.0f;
+        if (IsKeyPressed(KEY_D)) player1.x += 1.0f;
+        else if (IsKeyPressed(KEY_A)) player1.x -= 1.0f;
+
+        if (IsKeyPressed(KEY_EQUAL)) camera1.zoom += 0.5f;
+        if (IsKeyPressed(KEY_MINUS)) camera1.zoom -= 0.5f;
 
         camera1.target = (Vector2){ player1.x, player1.y };
 
@@ -259,7 +267,7 @@ int main()
 
         DrawTexturePro(
             bg, (Rectangle){0, 0, bg.width, bg.height},
-            (Rectangle){0, 0, RENDER_WIDTH, RENDER_HEIGHT},
+            (Rectangle){0, 0, bg.width, bg.height},
             (Vector2){0, 0}, 0.0f, WHITE);
 
         DrawRectangleRec(player1, RED);
