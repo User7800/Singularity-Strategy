@@ -8,6 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(FetchContent)
 
+# Force Raylib to build with OpenGL 2.1
+#set(GRAPHICS "GRAPHICS_API_OPENGL_21" CACHE STRING "Raylib graphics backend" FORCE)
 # Raylib 5.5
 FetchContent_Declare(
     raylib
