@@ -1,10 +1,50 @@
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "raylib.h"
+#include <flecs.h>
 #include "config.h"
 #include "rlwm.h"
 
 #define PLAYER_SIZE 1
+
+typedef struct {
+    float x, y;
+} Position, Velocity;
+
+typedef struct {
+    float value;
+} Radius;
+
+void Move(ecs_iter_t *it) {
+  Position *p = ecs_field(it, Position, 0);
+  Velocity *v = ecs_field(it, Velocity, 1);
+
+  for (int i = 0; i < it->count; i++) {
+    p[i].x += v[i].x;
+    p[i].y += v[i].y;
+
+    if (p[i].y < 0 ) {
+        p[i].y = 0;
+        v[i].y = -v[i].y;
+    } else if (p[i].y > 999) {
+        p[i].y = 999;
+        v[i].y = -v[i].y;};
+    if (p[i].x < 0 ) {p[i].x += 2000;}
+    else if (p[i].x > 1999) {p[i].x -= 2000;};
+    
+  }
+}
+
+void Draw_Bentity(ecs_iter_t *it) {
+    Position *p = ecs_field(it, Position, 0);
+    Radius *r = ecs_field(it, Radius, 1);
+    for (int i = 0; i < it->count; i++) {
+        DrawCircle(p[i].x, p[i].y, r[i].value, RED);
+        DrawText(TextFormat("[%.2f, %.2f]", p[i].x, p[i].y), p[i].x - 35, p[i].y + 10, 18, WHITE);
+        DrawText(TextFormat("[%i]", i), p[i].x, p[i].y - 10, 18, WHITE);
+    }
+}
 
 // _____________________________________________________________________________
 //
@@ -27,6 +67,26 @@ int main()
     boldFont = LoadFontEx(TextFormat("%s/font_bold.ttf", ASSETS_FOLDER), FONT_SIZE, NULL, 95);
 
     Texture bg = LoadTexture(TextFormat("%s/map.png", ASSETS_FOLDER));
+
+
+    // _________________________________________________________________________
+    //
+    //  World setup
+    // _________________________________________________________________________
+    //
+
+    ecs_world_t *ecs = ecs_init();
+
+    ECS_COMPONENT(ecs, Position);
+    ECS_COMPONENT(ecs, Velocity);
+    ECS_COMPONENT(ecs, Radius);
+
+    ecs_entity_t Visible = ecs_new(ecs);
+
+    ECS_SYSTEM(ecs, Move, EcsOnUpdate, Position, Velocity);
+    ECS_SYSTEM(ecs, Draw_Bentity, 0, Position, Radius);
+    ecs_set_rate(ecs, ecs_id(Move), 1, 0);
+
 
     // _________________________________________________________________________
     //
@@ -91,12 +151,28 @@ int main()
     //  Set up player
     // _________________________________________________________________________
     //
-    Rectangle player1 = { 3*PLAYER_SIZE, 3*PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE };
+    Rectangle player1 = { 1000, 500, PLAYER_SIZE, PLAYER_SIZE };
     Camera2D camera1 = { 0 };
     camera1.target = (Vector2){ player1.x, player1.y };
     camera1.offset = (Vector2){ 450.0f , 200.0f };
     camera1.rotation = 0.0f;
     camera1.zoom = 1.0f;
+
+    // _________________________________________________________________________
+    //
+    //  Set up the bentities
+    // _________________________________________________________________________
+    //
+    for (int i = 0; i < 100; i++)
+    {
+        ecs_entity_t e = ecs_insert(ecs,
+          ecs_value(Position, {10 + (i*20), 20}),
+          ecs_value(Velocity, {
+            (rand()%60 - 30)*0.1f, 
+            (rand()%60 - 30)*0.1f}),
+          ecs_value(Radius, {12})
+        );
+    }
 
     RenderTexture screenCamera1 = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -126,6 +202,8 @@ int main()
         //  Update
         // _____________________________________________________________________
         //
+
+        ecs_progress(ecs, 0);
 
         //if (IsKeyPressed(KEY_A))
         //{
@@ -168,6 +246,8 @@ int main()
         if (camera1.target.y < 200/camera1.zoom) camera1.target.y = 200/camera1.zoom;
         //if (camera1.target.y > 678) camera1.target.y = 678;
         if (camera1.target.y > 1000 - 322/camera1.zoom) camera1.target.y = 1000 - 322/camera1.zoom;
+
+
 
         // _____________________________________________________________________
         //
@@ -290,6 +370,12 @@ int main()
             bg, (Rectangle){0, 0, bg.width/3, bg.height},
             (Rectangle){0, 0, bg.width/3, bg.height},
             (Vector2){-bg.width, 0}, 0.0f, WHITE);
+
+
+        //DrawCircle(0, 0, float radius, Color color)
+
+        ecs_run(ecs, Draw_Bentity, 0.0, NULL);
+
 
         DrawRectangleRec(player1, RED);
         DrawText(TextFormat("[%.2f, %.2f]", player1.x, player1.y), player1.x, player1.y-12, 12, WHITE);
