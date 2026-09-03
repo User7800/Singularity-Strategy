@@ -59,6 +59,19 @@ int main()
     SetWindowIcon(LoadImage(TextFormat("%s/logo.png", ASSETS_FOLDER)));
     SetMouseScale(1 / SCALE, 1 / SCALE);
 
+    ecs_world_t *ecs = ecs_init();
+    ECS_COMPONENT(ecs, Position);
+    ECS_COMPONENT(ecs, Velocity);
+
+    ECS_SYSTEM(ecs, Move, EcsOnUpdate, Position, Velocity);
+    ecs_set_rate(ecs, ecs_id(Move), 1, 0);
+
+    ecs_entity_t e = ecs_insert(ecs,
+        ecs_value(Position, {10, 20}),
+        ecs_value(Velocity, {0.5, 0})
+    );
+    const Position *p = ecs_get(ecs, e, Position);
+
     RenderTexture rt = LoadRenderTexture(RENDER_WIDTH, RENDER_HEIGHT);
 
     if (FULLSCREEN) ToggleFullscreen();
